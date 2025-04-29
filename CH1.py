@@ -1,6 +1,6 @@
-import debugpy
 import pandas as pd
 import numpy as np
+import mfekit as mfk
 
 # Define file path
 file_path = "data/indeces-jul26-aug9-2012.xlsx"
@@ -20,6 +20,8 @@ returns['S&P500_%'] = prices['S&P 500'].pct_change()
 returns = returns.iloc[1:].reset_index(drop=True)
 
 print(returns)
+
+print(mfk.returns(prices))
 
 returns_mat = returns.to_numpy() #TX
 # Compute mean for centering
@@ -57,13 +59,13 @@ print("\nCovariance MAtrix for Log Returns (Manual):\n", log_cov)
 log_cov_mat = log_returns.cov()
 print("Covariaqnce Matrix for Log Returns (Pandas):\n", log_cov_mat)
 
-#std_devs = np.sqrt(np.diag(cov))
-#D_inv = np.linalg.inv(np.diag(std_devs))
-#corr_matrix = D_inv @ cov @ D_inv
-#print("Correlation Matrix:\n", corr_matrix)
+std_devs = np.sqrt(np.diag(cov))
+D_inv = np.linalg.inv(np.diag(std_devs))
+corr_matrix = D_inv @ cov @ D_inv
+print("Correlation Matrix:\n", corr_matrix)
 
-#corr_matrix = returns.corr()
-#print("Correlation Matrix:\n", corr_matrix)
+corr_matrix = returns.corr()
+print("Correlation Matrix:\n", corr_matrix)
 
-#corr_matrix_np = np.corrcoef(returns_mat, rowvar=False)
-#print("Correlation Matrix (NumPy):\n", corr_matrix_np)
+corr_matrix_np = np.corrcoef(returns_mat, rowvar=False)
+print("Correlation Matrix (NumPy):\n", corr_matrix_np)

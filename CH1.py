@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import mfekit as mfk
 
 # Define file path
 file_path = "data/indeces-jul26-aug9-2012.xlsx"
@@ -19,6 +20,8 @@ returns['S&P500_%'] = prices['S&P 500'].pct_change()
 returns = returns.iloc[1:].reset_index(drop=True)
 
 print(returns)
+
+print(mfk.returns(prices))
 
 returns_mat = returns.to_numpy() #TX
 # Compute mean for centering

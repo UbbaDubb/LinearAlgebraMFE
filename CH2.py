@@ -17,6 +17,11 @@ P, L, U = lu(A)
 
 print(P, "\n",  L, "\n", U)
 
+LL, UU = mfk.lu_no_pivoting(A)
+print("\nLU decomposition without pivoting:")
+print(LL, "\n", UU)
+
+
 B = np.array([
     [2, 0, 0],
     [4, 5, 0],
@@ -50,3 +55,29 @@ print(discount_factors)
 
 rates = mfk.zero_rates(cash_flows, prices)
 print(rates)
+
+B = np.array([
+    [2, 3, -1],
+    [0, 1, 4],
+    [0,0, 5]
+    ])
+
+b= np.array([
+    [5],
+    [6],
+    [10]
+])
+y = mfk.backward_subst(B, b)
+print(y)
+
+C = np.array([
+    [2, -1, 3, 0],
+    [-4, 5, -7, -2],
+    [-2, 10, -4, -7],
+    [4, -14, 8, 10]
+    ])
+
+LL, UU = mfk.lu_no_pivoting(C)
+
+print("LU decomposition without pivoting:")
+print(LL, "\n", UU, "\n")

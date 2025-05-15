@@ -118,7 +118,7 @@ def forward_subst_bidiag(L,b):
     Forward substitution to solve Lx = b for a bidiagonal matrix L.
     
     Parameters:
-    L (np.ndarray): Bidiagonal matrix of size n x n
+    L (np.ndarray): nonsingular lower triangular Bidiagonal matrix of size n x n
     b (np.ndarray): column vector of size n
     
     Returns:
@@ -156,3 +156,77 @@ def zero_rates(cash_flows, prices):
         zero_rates[i] = (-np.log(discount_factors[i]))/(i+1)
     
     return zero_rates
+
+def backward_subst(U, b):
+    """
+    Backward substitution to solve Ux = b.
+    
+    Parameters:
+    U (np.ndarray): nonsingular Upper triangular matrix of size n x n
+    b (np.ndarray): column vector of size n
+    
+    Returns:
+    np.ndarray: Solution vector x.
+    """
+    n = len(b)
+    x = np.zeros(n)
+    
+    for i in range(n-1, -1, -1):
+        x[i] = (b[i] - np.dot(U[i, i+1:], x[i+1:])) / U[i, i]
+    
+    # Return as a column vector
+    x = x.reshape(-1, 1)
+    
+    return x
+
+def backward_subst_bidiag(U, b):
+    """
+    Backward substitution to solve Ux = b for a bidiagonal matrix U.
+    
+    Parameters:
+    U (np.ndarray): nonsingular upper triangular Bidiagonal matrix of size n x n
+    b (np.ndarray): column vector of size n
+    
+    Returns:
+    np.ndarray: Solution vector x.
+    """
+    n = len(b)
+    x = np.zeros(n)
+    
+    # Backward substitution
+    for i in range(n-1, -1, -1):
+        if i == n-1:
+            x[i] = b[i] / U[i, i]
+        else:
+            x[i] = (b[i] - U[i, i+1] * x[i+1]) / U[i, i]
+    
+    # Return as a column vector
+    x = x.reshape(-1, 1)
+    
+    return x
+
+
+def lu_no_pivoting(A):
+    """
+    LU decomposition without pivoting.
+    
+    Parameters:
+    A (np.ndarray): Square matrix of size n x n
+    
+    Returns:
+    (L, U): Tuple of lower and upper triangular matrices
+    """
+    A = A.copy().astype(float)  # Avoid modifying input and ensure float division
+    n = A.shape[0]
+    L = np.eye(n)
+    U = np.zeros((n, n))
+
+    for i in range(n):
+        for j in range(i, n):
+            U[i, j] = A[i, j] - np.dot(L[i, :i], U[:i, j])
+        for j in range(i+1, n):
+            if U[i, i] == 0:
+                raise ZeroDivisionError(f"Zero pivot encountered at index {i}")
+            L[j, i] = (A[j, i] - np.dot(L[j, :i], U[:i, i])) / U[i, i]
+
+    return L, U

@@ -81,3 +81,24 @@ LL, UU = mfk.lu_no_pivoting(C)
 
 print("LU decomposition without pivoting:")
 print(LL, "\n", UU, "\n")
+
+# Question 4
+
+q4_A = np.array([
+    [2, -1, 3, -1],
+    [1, 0, -2, -4],
+    [3, 1, 1, -2],
+    [-4, 1, 0, 2]
+])
+
+q4_b = np.array([
+    [-1],
+    [0],
+    [1],
+    [2]
+])
+
+print("LU decomposition with pivoting:")
+q4_x = mfk.linear_solve_lu_row_pivoting(q4_A, q4_b)
+print(q4_x)
+

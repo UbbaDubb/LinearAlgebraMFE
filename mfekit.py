@@ -284,57 +284,6 @@ def linear_solve_LU_no_pivoting_tridiag(A, b):
     x = backward_subst_bidiag(U, y)
     return x
 
-"""
-def lu_row_pivoting(A):
-    
-    #A= nonsingular matrix of size n
-
-    #P= permuation matrix, stored as vector of its original entries
-    #L = lower triangular matrix with entries 1 on the diagonal
-    #U = upper triangular matrix
-    #such that PA = LU
-
-    
-
-    n = len(A) -1
-    P = np.arange(n)  # Initialize permutation vector
-    L = np.eye(n)
-    U = np.zeros((n, n))
-
-    for i in range (0, (n-1)):
-    #find i_max, index of the largest entry from vector (A:n, i)
-        i_max = np.argmax(np.abs(A[i:, i])) + i  # Adjust index to account for the current row
-
-        if i_max != i:
-            # Swap rows in A
-            vv = A[i, :].copy()
-            A[i, :] = A[i_max, :]
-            A[i_max, :] = vv
-
-            #Update permutation vector P
-            cc= P[i].copy()
-            P[i] = P[i_max]
-            P[i_max] = cc
-            
-            #Switch rows i and i~_max of L
-            if i> 1:
-                ww = L[i, 1:(i-1)].copy()
-                L[i, 1:(i-1)] = L[i_max, 1:(i-1)]
-                L[i_max, 1:(i-1)] = ww
-            
-        for j in range (i,n):
-            L[j,i] = A[j,i] / A[i,i]
-            U[i,j] = A[i,j]
-
-        for j in range(i+1, n):
-            for k in range(i+1, n):
-                A[j,k] = A[j,k] - L[j,i] * U[i,k]
-
-        L[n,n] = 1
-        U[n, n] = A[n, n]
-
-    return P, L, U
-"""
 
 def lu_row_pivoting(A):
     """
@@ -388,4 +337,81 @@ def linear_solve_lu_row_pivoting(A, b):
     x = backward_subst(U, y)
     
     return x
+
+def lu_col_pivoting(A):
+    """
+    Perform LU decomposition with column pivoting.
+
+    Parameters:
+    A (np.ndarray): Nonsingular square matrix of size n x n.
+
+    Returns:
+    tuple: (P, L, U)
+        P (np.ndarray): Permutation matrix as a vector of indices.
+        L (np.ndarray): Lower triangular matrix with 1s on the diagonal.
+        U (np.ndarray): Upper triangular matrix.
+    """
+    A = A.copy().astype(float)  # Ensure input matrix is not modified and is float
+    n = A.shape[0]
+    P = np.arange(n)  # Initialize permutation vector
+    L = np.eye(n)  # Initialize L as identity matrix
+    U = np.zeros_like(A)  # Initialize U as a zero matrix
+
+    for i in range(n):
+        # Find the index of the largest pivot element in the current row
+        i_max = np.argmax(np.abs(A[i, i:])) + i
+
+        if A[i, i_max] == 0:
+            raise ValueError("Matrix is singular and cannot be decomposed.")
+
+        # Swap columns in A and update the permutation vector
+        if i_max != i:
+            A[[i_max, i]] = A[[i, i_max]]
+            P[[i_max, i]] = P[[i, i_max]]
+            if i>0:
+                L[:, [i_max, i]] = L[:, [i, i_max]]
+
+        # Need to fix this step
+        # Update L and U matrices
+        for j in range(i, n):
+            U[i, j] = A[i, j]
+        for j in range(i + 1, n):
+            L[j, i] = A[j, i] / U[i, i]
+            A[j, i:] -= L[j, i] * U[i, i:]
+
+    return P, L, U
+
+def linear_solve_lu_col_pivoting(A, b):
+    """
+    A = nonsingular matrix of size n wit hLU decomposition
+    b = column vector of size n
+    """
+    P , L , U = lu_col_pivoting(A)
+    y=forward_susbt(L, b)  # No permutation applied to b
+    x = backward_subst(U, y[P])  # Apply permutation to the solution vector
+    return x
+
+def forward_subst_banded(L, b, m):
+    """
+    Forward substitution to solve Lx = b for a banded lower triangular matrix L.
     
+    Parameters:
+    L (np.ndarray): Banded lower triangular matrix of size n x n with bandwidth m
+    b (np.ndarray): column vector of size n
+    m (int): bandwidth of the matrix L
+    
+    Returns:
+    np.ndarray: Solution vector x.
+    """
+    n = len(b)
+    x = np.zeros(n)
+    
+    # Forward substitution
+    for i in range(n):
+        start = max(0, i - m)
+        x[i] = (b[i] - np.dot(L[i, start:i], x[start:i])) / L[i, i]
+    
+    # Return as a column vector
+    x = x.reshape(-1, 1)
+    
+    return x

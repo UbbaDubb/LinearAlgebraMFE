@@ -102,3 +102,22 @@ print("LU decomposition with pivoting:")
 q4_x = mfk.linear_solve_lu_row_pivoting(q4_A, q4_b)
 print(q4_x)
 
+# Question 6/7
+
+q6_A = np.array([
+    [2, -1, 1],
+    [-2, 1, 3],
+    [4, 0, -1]
+])
+
+q6 = mfk.lu_row_pivoting(q6_A)
+print("LU decomposition with row pivoting:")
+print("L =\n", q6[1])
+print("U =\n", q6[2])
+print("P =\n", q6[0])
+
+q7 = mfk.lu_col_pivoting(q6_A)
+print("LU decomposition with column pivoting:")
+print("L =\n", q7[1])
+print("U =\n", q7[2])
+print("P =\n", q7[0])
